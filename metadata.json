@@ -1,0 +1,7 @@
+{
+  "name": "Frontend Interview Copilot",
+  "description": "A smart interview preparation tool for frontend engineers. Select your stack, describe your project, and get tailored interview questions using Gemini AI.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
