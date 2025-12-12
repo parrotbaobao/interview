@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { InterviewQuestion } from '../types';
+import { InterviewQuestion, SpeechRecognition, SpeechRecognitionEvent } from '../types';
 import { BrainIcon, LoaderIcon, MicIcon, StopIcon, SendIcon, ChevronDownIcon, CodeIcon } from './Icons';
 
 // Custom wrapper for code blocks to make them collapsible
-const CollapsiblePre = ({ children, ...props }: any) => {
+const CollapsiblePre = ({ children, ...props }: React.ComponentPropsWithoutRef<'pre'>) => {
   return (
     <details className="my-4 group bg-slate-900 rounded-xl overflow-hidden border border-slate-700 shadow-sm">
       <summary className="px-4 py-2.5 bg-slate-800 text-slate-300 text-xs font-mono uppercase cursor-pointer hover:bg-slate-700 flex items-center justify-between select-none transition-colors">
@@ -68,7 +68,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question, onGetAnswe
   const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [followUpText, setFollowUpText] = useState('');
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const scrollEndRef = useRef<HTMLDivElement>(null);
   
   // Track initial follow-ups to avoid animating history
@@ -106,17 +106,18 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question, onGetAnswe
     };
   }, []);
 
-  const scrollToBottom = () => {
+  // Use useCallback to maintain reference stability for TypewriterMarkdown dependency
+  const scrollToBottom = useCallback(() => {
     // Use 'smooth' for better visuals, or 'auto' for strict sticking
     scrollEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  };
+  }, []);
 
   // Initial scroll when opening answered question
   useEffect(() => {
       if (question.followUps && question.followUps.length > 0) {
           scrollToBottom();
       }
-  }, [question.followUps?.length]); 
+  }, [question.followUps?.length, scrollToBottom]); 
 
   const toggleListening = () => {
     if (isListening) {
@@ -127,7 +128,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question, onGetAnswe
       return;
     }
 
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       alert("您的浏览器不支持语音识别，请使用 Chrome 或 Edge。");
       return;
@@ -142,7 +143,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question, onGetAnswe
       setIsListening(true);
     };
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
       let finalTranscript = '';
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
@@ -154,8 +155,8 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question, onGetAnswe
       }
     };
 
-    recognition.onerror = (event: any) => {
-      console.error("Speech recognition error", event.error);
+    recognition.onerror = (event: Event) => {
+      console.error("Speech recognition error", event);
       setIsListening(false);
     };
 
@@ -255,6 +256,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question, onGetAnswe
                     className="w-full p-4 pb-12 text-base border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[160px] bg-slate-50 text-slate-800 placeholder:text-slate-400 resize-none"
                 />
                 <button 
+                    type="button"
                     onClick={toggleListening}
                     className={`absolute bottom-3 right-3 p-3 rounded-full transition-all shadow-sm ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-white text-slate-400 border border-slate-200 hover:bg-slate-50 hover:text-indigo-600'}`}
                     title={isListening ? "停止录音" : "开始语音回答"}
@@ -267,6 +269,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question, onGetAnswe
         {/* Action Button (Analyze) - Hide if already answered */}
         {!question.answer && (
             <button
+                type="button"
                 onClick={handleGetFeedback}
                 disabled={question.isAnswerLoading}
                 className={`w-full py-3.5 rounded-xl font-semibold text-white shadow-md transition-all flex items-center justify-center gap-2 mb-2
@@ -347,6 +350,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question, onGetAnswe
                         className="flex-1 px-4 py-3 rounded-full border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50 text-sm outline-none"
                     />
                     <button 
+                        type="button"
                         onClick={handleSendFollowUp}
                         disabled={question.isFollowUpLoading || !followUpText.trim()}
                         className="p-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed shadow-md transition-colors"

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { TechSelect } from './components/TechSelect';
 import { QuestionCard } from './components/QuestionCard';
 import { TechStack, InterviewQuestion, GeneratorState, InterviewSession, FollowUp } from './types';
@@ -281,6 +281,7 @@ function App() {
                     </h1>
                 </div>
                 <button
+                    type="button"
                     onClick={() => setState(prev => ({ ...prev, isHistoryOpen: true }))}
                     className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-all"
                 >
@@ -291,6 +292,7 @@ function App() {
             <>
                 <div className="flex-1 flex justify-start">
                     <button 
+                        type="button"
                         onClick={handleExitInterview}
                         className="flex items-center gap-1 text-slate-500 hover:text-slate-800 text-sm font-medium p-2 -ml-2 rounded-lg hover:bg-slate-50 transition-colors"
                     >
@@ -383,6 +385,7 @@ function App() {
         <div className="flex-none bg-white border-t border-slate-100 p-4 pb-6 z-20">
              {viewMode === 'setup' ? (
                  <button
+                    type="button"
                     onClick={handleGenerate}
                     disabled={state.isGenerating}
                     className={`
@@ -409,6 +412,7 @@ function App() {
              ) : (
                  <div className="grid grid-cols-2 gap-4">
                      <button 
+                        type="button"
                         onClick={handlePrev}
                         disabled={currentQuestionIndex === 0}
                         className="py-3 rounded-xl font-semibold border border-slate-200 text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 flex items-center justify-center gap-2"
@@ -416,6 +420,7 @@ function App() {
                          <ArrowLeftIcon className="w-5 h-5" /> 上一题
                      </button>
                      <button 
+                        type="button"
                         onClick={handleNext}
                         disabled={currentQuestionIndex === state.questions.length - 1}
                         className="py-3 rounded-xl font-semibold bg-indigo-600 text-white shadow-md shadow-indigo-100 disabled:opacity-50 disabled:bg-slate-300 disabled:shadow-none hover:bg-indigo-700 flex items-center justify-center gap-2"
@@ -435,6 +440,7 @@ function App() {
                         面试记录
                     </h2>
                     <button 
+                        type="button"
                         onClick={() => setState(prev => ({ ...prev, isHistoryOpen: false }))}
                         className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
                     >
@@ -446,6 +452,7 @@ function App() {
                  {historyStacks.length > 0 && (
                     <div className="flex-none p-3 border-b border-slate-50 flex gap-2 overflow-x-auto scrollbar-hide">
                         <button
+                            type="button"
                             onClick={() => setHistoryFilter('All')}
                             className={`px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap border transition-colors ${
                                 historyFilter === 'All' 
@@ -458,6 +465,7 @@ function App() {
                         {historyStacks.map(stack => (
                             <button
                                 key={stack}
+                                type="button"
                                 onClick={() => setHistoryFilter(stack)}
                                 className={`px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap border transition-colors ${
                                     historyFilter === stack 
@@ -482,13 +490,14 @@ function App() {
                             <div 
                                 key={session.id}
                                 onClick={() => loadHistoryItem(session)}
-                                className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm active:scale-[0.98] transition-transform"
+                                className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm active:scale-[0.98] transition-transform cursor-pointer"
                             >
                                 <div className="flex justify-between items-start mb-2">
                                     <span className="text-xs font-medium text-slate-400">
                                         {new Date(session.timestamp).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                     <button
+                                        type="button"
                                         onClick={(e) => deleteHistoryItem(session.id, e)}
                                         className="text-slate-300 hover:text-red-500 p-1 -mr-1"
                                     >

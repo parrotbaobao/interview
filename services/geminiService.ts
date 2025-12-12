@@ -4,6 +4,12 @@ import { InterviewQuestion, TechStack, FollowUp } from "../types";
 // Initialize Gemini Client
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
+interface GeneratedQuestion {
+  category: string;
+  question: string;
+  difficulty: 'Junior' | 'Mid' | 'Senior' | 'Expert';
+}
+
 export const generateQuestions = async (
   stacks: TechStack[],
   description: string,
@@ -81,29 +87,29 @@ export const generateQuestions = async (
     if (!jsonText) throw new Error("No data received from Gemini");
 
     const rawData = JSON.parse(jsonText);
-    const techQs = rawData.tech_questions || [];
-    const projQs = rawData.project_questions || [];
+    const techQs: GeneratedQuestion[] = rawData.tech_questions || [];
+    const projQs: GeneratedQuestion[] = rawData.project_questions || [];
     
     const timestamp = Date.now();
 
-    const formattedTechQs = techQs.map((q: any, index: number) => ({
+    const formattedTechQs = techQs.map((q, index) => ({
       id: `q-tech-${timestamp}-${index}`,
       category: q.category,
       question: q.question,
       difficulty: q.difficulty,
-      source: 'tech',
+      source: 'tech' as const,
       answer: undefined,
       userAnswer: '',
       isAnswerLoading: false,
       followUps: []
     }));
 
-    const formattedProjQs = projQs.map((q: any, index: number) => ({
+    const formattedProjQs = projQs.map((q, index) => ({
       id: `q-proj-${timestamp}-${index}`,
       category: q.category,
       question: q.question,
       difficulty: q.difficulty,
-      source: 'project',
+      source: 'project' as const,
       answer: undefined,
       userAnswer: '',
       isAnswerLoading: false,
